@@ -1,126 +1,65 @@
-var grid = 50;
-var width = 1366;
-var carGroup1,logGroup1;
-var grassHeight = 100;
-var gameState = "play";
-var carAnimation, logAnimation, playerAnimation;
-var school;
+var helicopterIMG, helicopterSprite, packageSprite,packageIMG;
+var packageBody,ground
+const Engine = Matter.Engine;
+const World = Matter.World;
+const Bodies = Matter.Bodies;
+const Body = Matter.Body;
+
 function preload()
 {
-  cityAnimation=loadAnimation("images/city1.png");
-  carAnimation1=loadAnimation("images/car1.png");
-  carAnimation2=loadAnimation("images/car2.png");
-  playerAnimation=loadAnimation("images/Player-03.png");
-  logAnimation=loadAnimation("images/log2.png");
+	helicopterIMG=loadImage("helicopter.png")
+	packageIMG=loadImage("package.png")
 }
 
 function setup() {
-  createCanvas(1366,700);
-  carGroup1 = new Group();
-  logGroup1 = new Group();
+	createCanvas(800, 700);
+	rectMode(CENTER);
+	
 
- //Grasses where player can rest
- for(var i=0;i<6;i++){
-  var bottomGrass1 = createSprite(683,height-50-(i*400),width,grassHeight);
-  if(i%2===0)//adding road
-  {
-   var road= createSprite(683,height-150-(i*400)-grassHeight,width,300,)
-    road.shapeColor="black";
-  }
-  bottomGrass1.shapeColor = "green";
+	packageSprite=createSprite(width/2, 80, 10,10);
+	packageSprite.addImage(packageIMG)
+	packageSprite.scale=0.2
+
+	helicopterSprite=createSprite(width/2, 200, 10,10);
+	helicopterSprite.addImage(helicopterIMG)
+	helicopterSprite.scale=0.6
+
+	groundSprite=createSprite(width/2, height-35, width,10);
+	groundSprite.shapeColor=color(255)
+
+
+	engine = Engine.create();
+	world = engine.world;
+
+	packageBody = Bodies.circle(width/2 , 200 , 5 , {restitution:0.4, isStatic:true});
+	World.add(world, packageBody);
+	
+
+	//Create a Ground
+	ground = Bodies.rectangle(width/2, 650, width, 10 , {isStatic:true} );
+ 	World.add(world, ground);
+
+
+	Engine.run(engine);
+  
 }
-  //To create rows of car
-   for(var i = 0; i < 40; i++){
-     cars = new Car(2);
-     carGroup1.add(cars.spt);
-   }
-  //To create rows of Logs
-    for(var i = 0; i < 40; i++){
-      log = new Log(-3);
-      logGroup1.add(log.spt);
-    }
-    //create player
-    player = new Player(width/2,height-75);
 
-    //Creating city
-    city=createSprite(width/2,-1500);
-    city.addAnimation("city",cityAnimation);
- }
 
 function draw() {
-  background("skyblue");
-
-  //Making the cars re-apper
-  for(i=1;i<carGroup1.length;i++) {
-    if(carGroup1[i].x>width)
-    {
-     carGroup1[i].x=0;
-    }
-    if(carGroup1[i].x<0)
-    {
-      carGroup1[i].x=width;
-    }
-  }
-
-  //making the logs reapper
-  for(i=1;i<logGroup1.length;i++){
-    if(logGroup1[i].x<0)
-    {
-    logGroup1[i].x=width;
-    }
-  }
-
-
-  //move the screen to location of player.
-  translate(0,-player.spt.y+height-150);
-
-  //to make the player go to the starting position if he will touch car
-  if(carGroup1.isTouching(player.spt)){
-        player.spt.x = width/2;
-        player.spt.y = height-75;
-   }
-
-  //to make the player float on the logs and if he will touch the river then he will again start 
-  if(logGroup1.isTouching(player.spt)){  
-    player.spt.x= player.spt.x-3;
-   }
-   else if((player.spt.y > height-1550 && player.spt.y < height-1300) ||
-           (player.spt.y < height-500 && player.spt.y > height-850)|| 
-           (player.spt.y>height)||
-           (player.spt.x<0)||
-           (player.spt.x>width)){
-
-            player.spt.x = width/2;
-            player.spt.y = height-75;
-  }
-
-//Win state
-if(city.isTouching(player.spt)){
-   gameState = "Win";
-  }
-
- if(gameState === "Win")
- {
-  stroke("Green");
-  fill("Green");
-  textSize(40);
-  text("Congratulations! You Made It.",width/2-250,-1700);
-  carGroup1.destroyEach();
-  logGroup1.destroyEach();
- } 
+  rectMode(CENTER);
+  background(0);
+  packageSprite.x= packageBody.position.x 
+  packageSprite.y= packageBody.position.y 
   drawSprites();
+ 
 }
 
-function keyPressed(){
-  if(keyCode == UP_ARROW){
-    player.move(0,-2);
-  }else if(keyCode == DOWN_ARROW){
-    player.move(0,2);
-  }else if(keyCode == LEFT_ARROW){
-    player.move(-2,0);
-  }else if(keyCode == RIGHT_ARROW){
-    player.move(2,0);
+function keyPressed() {
+ if (keyCode === DOWN_ARROW) {
+
+  Matter.Body.setStatic(packageBody,false);  
   }
 }
+
 
 
